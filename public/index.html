@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RED PUBLICIS | Workflow Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { 
+                        primary: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 900: '#14532d' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        .ready-glow {
+            border: 2px solid #22c55e !important;
+            animation: pulse-green 2s infinite;
+            background: linear-gradient(to right, #ffffff, #f0fdf4) !important;
+        }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-900 min-h-screen relative font-sans pb-20">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-6">
+        <div class="w-full max-w-md bg-white rounded-[3rem] p-12 shadow-2xl text-center">
+            <h1 class="text-3xl font-black tracking-tighter text-slate-900 uppercase mb-2">RED <span class="text-primary-600">PUBLICIS</span></h1>
+            <p class="text-slate-400 text-[10px] font-black tracking-[0.2em] uppercase mb-10 border-b border-slate-100 pb-8">Executive Access Only</p>
+            <div class="space-y-4 text-left">
+                <input id="userIn" type="text" placeholder="Username" class="w-full bg-slate-50 border-2 border-transparent focus:border-primary-600 p-5 rounded-2xl outline-none font-bold">
+                <input id="passIn" type="password" placeholder="Password" class="w-full bg-slate-50 border-2 border-transparent focus:border-primary-600 p-5 rounded-2xl outline-none font-bold">
+                <button onclick="handleLogin()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest mt-4 hover:bg-primary-600 transition-all">Login</button>
+                <p id="loginError" class="text-red-500 text-[10px] font-black uppercase mt-4 text-center hidden">Invalid Credentials</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESCHEDULE MODAL -->
+    <div id="rescheduleModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
+            <h2 class="text-xl font-black mb-2 uppercase">Adjust Timeline</h2>
+            <input type="hidden" id="rescheduleId">
+            <div class="space-y-4 mt-6">
+                <div>
+                    <label class="text-[9px] font-black uppercase text-slate-400 mb-2 block">New Deadline</label>
+                    <input type="date" id="newDeadlineInput" class="w-full border-2 border-slate-100 p-4 rounded-xl font-bold">
+                </div>
+                <div>
+                    <label class="text-[9px] font-black uppercase text-slate-400 mb-2 block">Reason for Priority Shift</label>
+                    <textarea id="rescheduleReason" placeholder="e.g. New urgent campaign from brand team" class="w-full border-2 border-slate-100 p-4 rounded-xl text-sm h-24"></textarea>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="closeReschedule()" class="flex-1 bg-slate-100 text-slate-400 py-4 rounded-xl font-black uppercase text-[10px]">Cancel</button>
+                    <button onclick="submitReschedule()" class="flex-1 bg-primary-600 text-white py-4 rounded-xl font-black uppercase text-[10px]">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BRIEF/HISTORY MODAL -->
+    <div id="briefModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-3xl p-8 shadow-2xl">
+            <h2 id="modalTitle" class="text-2xl font-extrabold mb-4 uppercase"></h2>
+            <div id="modalContent" class="text-slate-600 whitespace-pre-wrap max-h-[40vh] overflow-y-auto bg-slate-50 p-6 rounded-2xl border border-slate-100 font-medium mb-6"></div>
+            <div id="historyContent" class="max-h-[30vh] overflow-y-auto space-y-3"></div>
+            <button onclick="closeBrief()" class="mt-8 w-full bg-slate-900 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-sm hover:bg-primary-600">Close</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainApp" class="hidden">
+        <div class="max-w-5xl mx-auto px-4 py-12">
+            <!-- Header -->
+            <header class="mb-12 flex justify-between items-center border-b border-slate-200 pb-8">
+                <div>
+                    <h1 class="text-4xl font-black tracking-tighter text-slate-900 uppercase">RED <span class="text-primary-600">PUBLICIS</span></h1>
+                    <div class="flex items-center gap-3 mt-1">
+                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Pipeline Management</p>
+                        <button onclick="handleLogout()" class="text-[9px] font-black text-red-500 uppercase hover:underline">Logout</button>
+                    </div>
+                </div>
+                <div class="flex gap-2 bg-slate-100 p-1 rounded-2xl border border-slate-200">
+                    <button id="viewActive" onclick="toggleView('active')" class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all bg-white shadow-sm">Active</button>
+                    <button id="viewArchive" onclick="toggleView('archive')" class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all text-slate-400">Archive</button>
+                </div>
+            </header>
+
+            <!-- Creation Form -->
+            <div id="inputForm" class="bg-white p-10 rounded-[2.5rem] shadow-sm mb-12 border border-slate-200">
+                <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-8 flex items-center gap-3">
+                    <span class="w-2 h-2 bg-primary-600 rounded-full animate-pulse"></span> Create New Campaign
+                </h2>
+                
+                <div class="flex gap-4 mb-10">
+                    <button id="btnBunyad" onclick="selectBrand('Bunyad')" class="flex-1 py-4 rounded-2xl font-black border-2 text-xs uppercase transition-all active:scale-95">Bunyad</button>
+                    <button id="btnNescafe" onclick="selectBrand('Nescafe')" class="flex-1 py-4 rounded-2xl font-black border-2 text-xs uppercase transition-all active:scale-95">Nescafe</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                    <input id="csLeadInput" type="text" placeholder="CS Lead (Initiator)" class="border-2 border-slate-100 p-5 rounded-2xl font-bold outline-none focus:border-primary-600">
+                    <input id="projectInput" type="text" placeholder="Project / Campaign Name" class="border-2 border-slate-100 p-5 rounded-2xl font-medium outline-none focus:border-primary-600">
+                    <textarea id="briefInput" rows="3" placeholder="Paste Strategic Brief or Asset Links here..." class="md:col-span-2 border-2 border-slate-100 p-5 rounded-2xl font-medium outline-none focus:border-primary-600"></textarea>
+                    <div>
+                        <label class="text-[9px] font-black uppercase text-slate-400 ml-2 mb-2 block">Agreed Deadline</label>
+                        <input id="deadline" type="date" class="w-full border-2 border-slate-100 p-5 rounded-2xl font-bold text-slate-700 outline-none focus:border-primary-600">
+                    </div>
+                </div>
+
+                <div id="teamContainer" class="mb-10 p-8 bg-slate-50 rounded-[2rem] border border-slate-100"></div>
+
+                <button onclick="saveProject()" class="w-full bg-slate-900 text-white py-6 rounded-2xl font-black text-lg uppercase tracking-[0.2em] hover:bg-primary-600 transition-all active:scale-95 shadow-xl">Initialize Task</button>
+            </div>
+
+            <div id="displayArea" class="space-y-8"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentBrand = 'Bunyad';
+        let allProjects = [];
+        let currentView = 'active';
+
+        function handleLogin() {
+            if(document.getElementById('userIn').value === 'admin' && document.getElementById('passIn').value === 'red123') {
+                localStorage.setItem('redSession', 'active');
+                checkAuth();
+            } else { document.getElementById('loginError').classList.remove('hidden'); }
+        }
+        function handleLogout() { localStorage.removeItem('redSession'); location.reload(); }
+        function checkAuth() {
+            if(localStorage.getItem('redSession') === 'active') {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                selectBrand('Bunyad');
+                refreshList();
+            }
+        }
+
+        async function selectBrand(brand) {
+            currentBrand = brand;
+            const active = "flex-1 py-4 rounded-2xl font-black border-2 border-primary-600 bg-primary-600 text-white shadow-lg transition-all";
+            const inactive = "flex-1 py-4 rounded-2xl font-bold border-2 border-slate-200 text-slate-300 bg-white hover:border-slate-400 transition-all";
+            document.getElementById('btnBunyad').className = (brand === 'Bunyad') ? active : inactive;
+            document.getElementById('btnNescafe').className = (brand === 'Nescafe') ? active : inactive;
+            loadTeam(brand);
+        }
+
+        async function loadTeam(brand) {
+            const response = await fetch(`/team/${brand}`);
+            const depts = await response.json();
+            const container = document.getElementById('teamContainer');
+            container.innerHTML = '';
+            for (const [dept, members] of Object.entries(depts)) {
+                container.innerHTML += `
+                    <div class="mb-6">
+                        <p class="text-[9px] font-black uppercase text-slate-400 mb-3 tracking-widest">${dept}</p>
+                        <div class="flex flex-wrap gap-3">
+                            ${members.map(m => `
+                                <label class="bg-white border-2 border-slate-100 px-5 py-2.5 rounded-full cursor-pointer text-xs font-bold text-slate-600 hover:border-primary-600 transition-all flex items-center gap-2">
+                                    <input type="checkbox" name="teamMember" value="${m}" class="accent-primary-600"> ${m}
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>`;
+            }
+        }
+
+        async function saveProject() {
+            const body = {
+                brand: currentBrand,
+                csLead: document.getElementById('csLeadInput').value,
+                projectName: document.getElementById('projectInput').value,
+                brief: document.getElementById('briefInput').value,
+                deadline: document.getElementById('deadline').value,
+                assignees: Array.from(document.querySelectorAll('input[name="teamMember"]:checked')).map(cb => cb.value)
+            };
+            if(!body.csLead || !body.projectName || !body.deadline) return alert("Fill mandatory fields");
+            await fetch('/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            document.getElementById('projectInput').value = '';
+            document.getElementById('briefInput').value = '';
+            refreshList();
+        }
+
+        async function submitForReview(id) {
+            const fileInput = document.getElementById(`file-${id}`);
+            if (!fileInput.files[0]) return alert("Attach a file.");
+            const formData = new FormData();
+            formData.append('id', id); formData.append('workFile', fileInput.files[0]);
+            await fetch('/projects/submit', { method: 'POST', body: formData });
+            refreshList();
+        }
+
+        async function approveStep(id, type) {
+            await fetch('/projects/approve-step', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, type }) });
+            refreshList();
+        }
+
+        async function rejectProject(id) {
+            if(confirm("Reject this asset and return to Active pipeline?")) {
+                await fetch('/projects/reject', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+                refreshList();
+            }
+        }
+
+        function openReschedule(id) {
+            document.getElementById('rescheduleId').value = id;
+            document.getElementById('rescheduleModal').classList.remove('hidden');
+        }
+        function closeReschedule() { document.getElementById('rescheduleModal').classList.add('hidden'); }
+        async function submitReschedule() {
+            const id = document.getElementById('rescheduleId').value;
+            const newDeadline = document.getElementById('newDeadlineInput').value;
+            const reason = document.getElementById('rescheduleReason').value;
+            if(!newDeadline || !reason) return alert("Required: Date and Reason");
+            await fetch('/projects/reschedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, newDeadline, reason }) });
+            closeReschedule();
+            refreshList();
+        }
+
+        function getDeadlineStatus(p) {
+            if (!p.deadline) return { label: 'NO TARGET', class: 'bg-slate-100 text-slate-400' };
+            const target = new Date(p.deadline);
+            const now = new Date();
+            const completion = p.completionDate ? new Date(p.completionDate) : null;
+            if (completion) {
+                const diff = Math.ceil((completion - target) / 864e5);
+                return diff <= 0 ? { label: '✓ ON TIME', class: 'bg-primary-600 text-white' } : { label: `⚠ DELAYED ${diff}D`, class: 'bg-red-600 text-white' };
+            }
+            const diff = Math.ceil((now - target) / 864e5);
+            return diff > 0 ? { label: `⚠ OVERDUE ${diff}D`, class: 'bg-red-50 text-red-600 border border-red-200' } : { label: 'IN PROGRESS', class: 'bg-slate-100 text-slate-500' };
+        }
+
+        function toggleView(view) {
+            currentView = view;
+            document.getElementById('viewActive').className = (view === 'active') ? "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all bg-white shadow-sm" : "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all text-slate-400";
+            document.getElementById('viewArchive').className = (view === 'archive') ? "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all bg-white shadow-sm" : "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all text-slate-400";
+            document.getElementById('inputForm').style.display = (view === 'active') ? 'block' : 'none';
+            refreshList();
+        }
+
+        async function refreshList() {
+            const response = await fetch('/projects');
+            allProjects = await response.json();
+            const displayArea = document.getElementById('displayArea');
+            displayArea.innerHTML = '';
+            
+            const filtered = allProjects.filter(p => currentView === 'archive' ? p.isArchived : !p.isArchived);
+            if (filtered.length === 0) {
+                displayArea.innerHTML = `<div class="text-center py-20 bg-white rounded-[2.5rem] border border-dashed border-slate-200 font-black text-slate-300 uppercase tracking-widest text-xs">Clear Workspace</div>`;
+                return;
+            }
+
+            filtered.slice().reverse().forEach(p => {
+                const dl = getDeadlineStatus(p);
+                const isReady = p.status === "Ready to Share with Client";
+                const isReview = p.status === "Under Review";
+                
+                displayArea.innerHTML += `
+                    <div class="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between gap-10 transition-all duration-500 ${isReady ? 'ready-glow' : ''}">
+                        <div class="flex-1">
+                            <div class="flex flex-wrap items-center gap-3 mb-4">
+                                <span class="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${isReady ? 'bg-primary-600 text-white shadow-lg animate-pulse' : isReview ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-500'}">
+                                    ${isReady ? '★ READY FOR CLIENT' : p.status}
+                                </span>
+                                <span class="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${dl.class}">${dl.label}</span>
+                                <span class="text-[9px] font-black text-slate-300 uppercase">${p.brand}</span>
+                                ${p.rescheduleLog?.length > 0 ? `<span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[8px] font-black uppercase">Rescheduled ${p.rescheduleLog.length}x</span>` : ''}
+                            </div>
+                            <h3 class="text-3xl font-black uppercase tracking-tighter cursor-pointer hover:text-primary-600 flex items-center gap-3" onclick="openBrief(${p.id})">
+                                ${p.name}
+                                ${isReady ? '<span class="text-primary-600">✓</span>' : ''}
+                            </h3>
+                            <div class="flex flex-wrap gap-6 mt-6 border-t pt-4">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">CS LEAD: <span class="text-slate-900 font-black">${p.csLead}</span></p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">DEADLINE: <span class="text-slate-900 font-black cursor-pointer hover:underline" onclick="openReschedule(${p.id})">${p.deadline} ✎</span></p>
+                            </div>
+                            ${p.fileUrl ? `<a href="${p.fileUrl}" target="_blank" class="inline-block mt-6 text-[10px] font-black bg-slate-900 text-white px-5 py-3 rounded-2xl border border-slate-900 uppercase tracking-widest hover:bg-primary-600 transition-all">📎 Download Final Asset</a>` : ''}
+                        </div>
+                        <div class="flex flex-col md:items-end justify-between min-w-[220px]">
+                            <div class="flex flex-wrap gap-2 justify-end">${p.assignees.map(m => `<span class="bg-slate-50 border px-3 py-1.5 rounded-full text-[9px] font-bold uppercase">${m}</span>`).join('')}</div>
+                            
+                            <div class="mt-6 w-full space-y-3">
+                                ${currentView === 'active' ? `
+                                    ${p.status === "Active" ? `
+                                        <div class="flex gap-2 items-center bg-slate-50 p-2 rounded-2xl border">
+                                            <input type="file" id="file-${p.id}" class="text-[9px] font-black w-32">
+                                            <button onclick="submitForReview(${p.id})" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase">Submit</button>
+                                        </div>
+                                    ` : ''}
+                                    ${isReview ? `
+                                        <div class="space-y-2 bg-slate-50 p-4 rounded-2xl border">
+                                            <p class="text-[8px] font-black text-center uppercase text-slate-400 tracking-widest mb-2">Awaiting Approvals</p>
+                                            <div class="flex gap-2">
+                                                <button onclick="approveStep(${p.id}, 'design')" class="flex-1 px-4 py-3 rounded-xl text-[9px] font-black uppercase ${p.designApproved?'bg-primary-600 text-white shadow-md':'bg-white text-slate-300 border'}">Design</button>
+                                                <button onclick="approveStep(${p.id}, 'creative')" class="flex-1 px-4 py-3 rounded-xl text-[9px] font-black uppercase ${p.creativeApproved?'bg-primary-600 text-white shadow-md':'bg-white text-slate-300 border'}">Creative</button>
+                                            </div>
+                                            <button onclick="rejectProject(${p.id})" class="w-full text-red-500 text-[9px] font-black uppercase hover:underline text-center mt-2">Reject Asset</button>
+                                        </div>
+                                    ` : ''}
+                                    ${isReady ? `
+                                        <div class="text-center p-4 bg-primary-50 rounded-2xl border border-primary-100">
+                                            <p class="text-[9px] font-black text-primary-700 uppercase tracking-widest mb-3">Internal Check Clear</p>
+                                            <button onclick="archiveAction(${p.id}, true)" class="w-full bg-primary-600 text-white px-6 py-4 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-slate-900 transition-all">
+                                                Move to Client Shared
+                                            </button>
+                                            <button onclick="rejectProject(${p.id})" class="mt-4 block w-full text-red-500 text-[9px] font-black uppercase hover:underline">
+                                                ← Reject & Back to Active
+                                            </button>
+                                        </div>
+                                    ` : ''}
+                                    ${!isReady && !isReview && p.status !== "Active" ? `
+                                        <button onclick="archiveAction(${p.id}, true)" class="w-full text-slate-300 hover:text-red-500 text-[9px] font-black uppercase pt-4">Archive Project</button>
+                                    ` : ''}
+                                ` : `<button onclick="archiveAction(${p.id}, false)" class="bg-slate-900 text-white px-8 py-3 rounded-xl text-[10px] font-black uppercase w-full">Restore Project</button>`}
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        async function archiveAction(id, state) {
+            const msg = state ? "Moving to Archive (Shared with Client). Continue?" : "Restore to Active pipeline?";
+            if(confirm(msg)) {
+                const route = state ? '/projects/archive' : '/projects/restore';
+                await fetch(route, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+                refreshList();
+            }
+        }
+
+        function openBrief(id) {
+            const p = allProjects.find(x => x.id === id);
+            document.getElementById('modalTitle').innerText = p.name;
+            document.getElementById('modalContent').innerText = p.brief || "No tactical brief provided.";
+            const historyDiv = document.getElementById('historyContent');
+            historyDiv.innerHTML = p.rescheduleLog?.length > 0 ? `<p class="text-[10px] font-black text-amber-600 uppercase mb-2">Reschedule Logs</p>` : '';
+            p.rescheduleLog?.forEach(log => {
+                historyDiv.innerHTML += `
+                    <div class="bg-amber-50 border border-amber-100 p-4 rounded-2xl">
+                        <p class="text-[10px] font-black uppercase text-amber-800">Shifted: ${log.oldDeadline} ➔ ${log.newDeadline}</p>
+                        <p class="text-[12px] text-amber-700 italic mt-1 font-medium">"${log.reason}"</p>
+                    </div>`;
+            });
+            document.getElementById('briefModal').classList.remove('hidden');
+        }
+        function closeBrief() { document.getElementById('briefModal').classList.add('hidden'); }
+        window.onload = checkAuth;
+    </script>
+</body>
+</html>
