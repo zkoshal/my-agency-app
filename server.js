@@ -238,7 +238,7 @@ app.post("/projects/submit", upload.array("workFiles", 10), async (req, res) => 
     // Step 1: Update project status
     await pool.query(
       `UPDATE projects 
-       SET status=$1, design_approved=$2, creativeApproved=$3 
+       SET status=$1, design_approved=$2, creative_approved=$3 
        WHERE id=$4`,
       ["Under Review", 0, 0, id]
     );
