@@ -325,7 +325,7 @@
         async function adminDelete(id) { if(prompt("Admin Pass:") === 'red123') { await fetch('/projects/delete', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id}) }); refreshList(); } }
 
         function openBrief(id) {
-            const p = allProjects.find(x => x.id === id);
+            const p = allProjects.find(x => Number(x.id) === Number(id));
             document.getElementById('modalTitle').innerText = p.name;
             document.getElementById('modalContent').innerText = p.brief;
             if(p.files && p.files.length > 0) {
