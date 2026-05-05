@@ -23,8 +23,6 @@ app.get("/", (req, res) => {
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
-const DATA_FILE = './database.json';
-
 const SHARED_CREATIVE = ["Jawahira", "Shehryar", "Noor", "Maha", "Zoya", "Salman"];
 const BUNYAD_GROUP = ["Ammarah Haroon", "Rimsha", "Asim", "Qasim", "Maham", "Salman"];
 const PRIMARY_DESIGN_TEAM = ["Haroon", "Azka", "Aleem", "Farwa", "Ahmed", "Khadija"];
@@ -53,16 +51,6 @@ function getSystemDate() {
     const now = new Date();
     return `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 }
-
-function loadProjects() {
-    try {
-        if (fs.existsSync(DATA_FILE)) return JSON.parse(fs.readFileSync(DATA_FILE));
-    } catch (err) { console.error("DB Load Error", err); }
-    return [];
-}
-
-
-function saveProjects(projects) { fs.writeFileSync(DATA_FILE, JSON.stringify(projects, null, 2)); }
 
 app.post('/login', (req, res) => {
     if (req.body.username === 'admin' && req.body.password === 'red123') res.json({ success: true });
