@@ -14,6 +14,11 @@ const upload = multer({ storage });
 
 app.use(express.json());
 
+// Serve index.html at root
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
 // Serve uploaded files under /uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
