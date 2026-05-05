@@ -4,22 +4,22 @@ const pool = require("./db");
 
 async function migrate() {
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS projects (
-      id BIGINT PRIMARY KEY,
-      createdAt DATE,
-      brand TEXT,
-      name TEXT,
-      csLead TEXT,
-      brief TEXT,
-      deadline DATE,
-      status TEXT,
-      version INT,
-      isArchived BOOLEAN,
-      designApproved BOOLEAN,
-      creativeApproved BOOLEAN,
-      deliveryDate DATE,
-      fileUrl TEXT
-    )
+   CREATE TABLE IF NOT EXISTS projects (
+    id BIGINT PRIMARY KEY,
+    createdAt TIMESTAMP,
+    brand TEXT,
+    name TEXT,
+    csLead TEXT,
+    brief TEXT,
+    deadline DATE,
+    status TEXT,
+    version INT,
+    isArchived INT DEFAULT 0,
+    designApproved INT DEFAULT 0,
+    creativeApproved INT DEFAULT 0,
+    deliveryDate DATE,
+    fileUrl TEXT
+   )
   `);
 
   await pool.query(`

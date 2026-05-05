@@ -148,9 +148,9 @@ app.post("/projects", upload.array("briefFiles", 10), async (req, res) => {
       deadline: req.body.deadline,
       status: "Active",
       version: 1,
-      isArchived: false,
-      designApproved: false,
-      creativeApproved: false,
+      isArchived: 0,
+      designApproved: 0,
+      creativeApproved: 0,
       deliveryDate: null,
       fileUrl: null
     };
@@ -240,7 +240,7 @@ app.post("/projects/submit", upload.array("workFiles", 10), async (req, res) => 
       `UPDATE projects 
        SET status=$1, designApproved=$2, creativeApproved=$3 
        WHERE id=$4`,
-      ["Under Review", false, false, id]
+      ["Under Review", 0, 0, id]
     );
 
     // Step 2: Insert uploaded files
@@ -279,8 +279,8 @@ app.post("/projects/approve-step", async (req, res) => {
     let deliveryDate = null;
 
     // Step 2: Update flags based on type
-    if (type === "design") designapproved = true;
-    if (type === "creative") creativeapproved = true;
+    if (type === "design") designapproved = 1;
+    if (type === "creative") creativeapproved = 1;
 
     // Step 3: If both approved, mark Ready to Share
     if (designapproved && creativeapproved) {
@@ -315,7 +315,7 @@ app.post("/projects/reject", async (req, res) => {
       `UPDATE projects 
        SET status=$1, designApproved=$2, creativeApproved=$3 
        WHERE id=$4`,
-      ["Active", false, false, id]
+      ["Active", 0, 0, id]
     );
 
     if (updateRes.rowCount === 0) {
@@ -341,7 +341,7 @@ app.post("/projects/archive", async (req, res) => {
   try {
     const result = await pool.query(
       "UPDATE projects SET isArchived=$1 WHERE id=$2",
-      [true, id]
+      [1, id]
     );
 
     if (result.rowCount === 0) {
@@ -373,7 +373,7 @@ app.post("/projects/feedback-restore", async (req, res) => {
        SET isArchived=$1, status=$2, version=$3, 
            designApproved=$4, creativeApproved=$5, deliveryDate=$6 
        WHERE id=$7`,
-      [false, "Active", newVersion, false, false, null, id]
+      [0, "Active", newVersion, 0, 0, null, id]
     );
 
     // Step 3: Insert feedback log entry

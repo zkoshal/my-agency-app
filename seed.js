@@ -38,8 +38,8 @@ async function seedProjects() {
        ON CONFLICT (id) DO NOTHING`,
       [
         p.id, p.createdAt, p.brand, p.name, p.csLead, p.brief,
-        p.deadline, p.status, p.version, p.isArchived,
-        p.designApproved, p.creativeApproved, p.deliveryDate || null, p.fileUrl || null
+        p.deadline, p.status, p.version, p.isArchived ? 1 : 0,
+        p.designApproved ? 1 : 0, p.creativeApproved ? 1 : 0, p.deliveryDate || null, p.fileUrl || null
       ]
     );
 
