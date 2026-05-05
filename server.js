@@ -274,16 +274,16 @@ app.post("/projects/approve-step", async (req, res) => {
       return res.status(404).send("Project not found");
     }
 
-    let { designapproved, creativeapproved } = rowRes.rows[0];
+    let { design_approved, creative_approved } = rowRes.rows[0];
     let status = null;
     let delivery_date = null;
 
     // Step 2: Update flags based on type
-    if (type === "design") designapproved = 1;
-    if (type === "creative") creativeapproved = 1;
+    if (type === "design") design_approved = 1;
+    if (type === "creative") creative_approved = 1;
 
     // Step 3: If both approved, mark Ready to Share
-    if (designapproved && creativeapproved) {
+    if (design_approved && creative_approved) {
       status = "Ready to Share";
       delivery_date = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
     }
