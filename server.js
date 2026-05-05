@@ -267,7 +267,7 @@ app.post("/projects/approve-step", async (req, res) => {
   try {
     // Step 1: Fetch current project state
     const rowRes = await pool.query(
-      "SELECT design_approved, creativeApproved FROM projects WHERE id=$1",
+      "SELECT design_approved, creative_approved FROM projects WHERE id=$1",
       [id]
     );
     if (rowRes.rows.length === 0) {
