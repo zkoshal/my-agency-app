@@ -1,31 +1,29 @@
-const fs = require("fs");
 const pool = require("./db");
-
 
 async function migrate() {
   await pool.query(`
    CREATE TABLE IF NOT EXISTS projects (
     id BIGINT PRIMARY KEY,
-    createdAt TIMESTAMP,
+    created_at TIMESTAMP,
     brand TEXT,
     name TEXT,
-    csLead TEXT,
+    cs_lead TEXT,
     brief TEXT,
     deadline DATE,
     status TEXT,
     version INT,
-    isArchived INT DEFAULT 0,
-    designApproved INT DEFAULT 0,
-    creativeApproved INT DEFAULT 0,
-    deliveryDate DATE,
-    fileUrl TEXT
+    is_archived INT DEFAULT 0,
+    design_approved INT DEFAULT 0,
+    creative_approved INT DEFAULT 0,
+    delivery_date DATE,
+    file_url TEXT
    )
   `);
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS assignees (
       id SERIAL PRIMARY KEY,
-      projectId BIGINT REFERENCES projects(id) ON DELETE CASCADE,
+      project_id BIGINT REFERENCES projects(id) ON DELETE CASCADE,
       name TEXT
     )
   `);
@@ -33,40 +31,40 @@ async function migrate() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS files (
       id SERIAL PRIMARY KEY,
-      projectId BIGINT REFERENCES projects(id) ON DELETE CASCADE,
+      project_id BIGINT REFERENCES projects(id) ON DELETE CASCADE,
       name TEXT,
       url TEXT,
-      uploadedAt DATE
+      uploaded_at TIMESTAMP
     )
   `);
 
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS rejectionLog (
+    CREATE TABLE IF NOT EXISTS rejection_log (
       id SERIAL PRIMARY KEY,
-      projectId BIGINT REFERENCES projects(id) ON DELETE CASCADE,
-      date DATE,
+      project_id BIGINT REFERENCES projects(id) ON DELETE CASCADE,
+      date TIMESTAMP,
       reason TEXT
     )
   `);
 
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS feedbackLog (
+    CREATE TABLE IF NOT EXISTS feedback_log (
       id SERIAL PRIMARY KEY,
-      projectId BIGINT REFERENCES projects(id) ON DELETE CASCADE,
+      project_id BIGINT REFERENCES projects(id) ON DELETE CASCADE,
       version INT,
-      date DATE,
+      date TIMESTAMP,
       content TEXT
     )
   `);
 
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS rescheduleLog (
+    CREATE TABLE IF NOT EXISTS reschedule_log (
       id SERIAL PRIMARY KEY,
-      projectId BIGINT REFERENCES projects(id) ON DELETE CASCADE,
-      oldDate DATE,
-      newDate DATE,
+      project_id BIGINT REFERENCES projects(id) ON DELETE CASCADE,
+      old_date DATE,
+      new_date DATE,
       reason TEXT,
-      date DATE
+      date TIMESTAMP
     )
   `);
 
@@ -87,15 +85,14 @@ async function migrate() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS brand_teams (
       id SERIAL PRIMARY KEY,
-      brandId INT REFERENCES brands(id) ON DELETE CASCADE,
-      memberId INT REFERENCES team_members(id) ON DELETE CASCADE,
+      brand_id INT REFERENCES brands(id) ON DELETE CASCADE,
+      member_id INT REFERENCES team_members(id) ON DELETE CASCADE,
       role TEXT CHECK (role IN ('Creative', 'Design'))
     )
   `);
 
-  console.log("✅ Migration complete");
+  console.log("✅ Migration complete with snake_case columns");
   pool.end();
 }
 
 migrate();
-

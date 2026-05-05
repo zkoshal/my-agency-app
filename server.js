@@ -74,8 +74,8 @@ app.get("/team/:brand", async (req, res) => {
     const result = await pool.query(
       `SELECT tm.name, bt.role
        FROM brand_teams bt
-       JOIN team_members tm ON bt.memberId = tm.id
-       JOIN brands b ON bt.brandId = b.id
+       JOIN team_members tm ON bt.member_id = tm.id
+       JOIN brands b ON bt.brand_id = b.id
        WHERE b.name = $1`,
       [brandName]
     );
@@ -96,26 +96,26 @@ app.get("/team/:brand", async (req, res) => {
 // Get all projects with related data
 app.get("/projects", async (req, res) => {
   try {
-    const projectsRes = await pool.query("SELECT * FROM projects ORDER BY createdAt DESC");
+    const projectsRes = await pool.query("SELECT * FROM projects ORDER BY created_at DESC");
     const projects = projectsRes.rows;
 
     const fullProjects = await Promise.all(
       projects.map(async p => {
         const project = { ...p };
 
-        const assigneesRes = await pool.query("SELECT name FROM assignees WHERE projectId=$1", [p.id]);
+        const assigneesRes = await pool.query("SELECT name FROM assignees WHERE project_id=$1", [p.id]);
         project.assignees = assigneesRes.rows.map(r => r.name);
 
-        const rejectionRes = await pool.query("SELECT date, reason FROM rejectionLog WHERE projectId=$1", [p.id]);
+        const rejectionRes = await pool.query("SELECT date, reason FROM rejection_log WHERE project_id=$1", [p.id]);
         project.rejectionLog = rejectionRes.rows;
 
-        const feedbackRes = await pool.query("SELECT version, date, content FROM feedbackLog WHERE projectId=$1", [p.id]);
+        const feedbackRes = await pool.query("SELECT version, date, content FROM feedback_log WHERE project_id=$1", [p.id]);
         project.feedbackLog = feedbackRes.rows;
 
-        const rescheduleRes = await pool.query("SELECT oldDate, newDate, reason, date FROM rescheduleLog WHERE projectId=$1", [p.id]);
+        const rescheduleRes = await pool.query("SELECT old_date, new_date, reason, date FROM reschedule_log WHERE project_id=$1", [p.id]);
         project.rescheduleLog = rescheduleRes.rows;
 
-        const filesRes = await pool.query("SELECT name, url, uploadedAt FROM files WHERE projectId=$1", [p.id]);
+        const filesRes = await pool.query("SELECT name, url, uploaded_at FROM files WHERE project_id=$1", [p.id]);
         project.files = filesRes.rows;
 
         return project;
@@ -158,7 +158,7 @@ app.post("/projects", upload.array("briefFiles", 10), async (req, res) => {
     // Insert into projects table
     await pool.query(
       `INSERT INTO projects 
-        (id, createdAt, brand, name, csLead, brief, deadline, status, version, isArchived, designApproved, creativeApproved, deliveryDate, fileUrl) 
+        (id, created_at, brand, name, cs_lead, brief, deadline, status, version, is_archived, design_approved, creative_approved, delivery_date, file_url) 
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
       [
         newProject.id,
@@ -182,7 +182,7 @@ app.post("/projects", upload.array("briefFiles", 10), async (req, res) => {
     const assignees = JSON.parse(req.body.assignees || "[]");
     for (const a of assignees) {
       await pool.query(
-        "INSERT INTO assignees (projectId, name) VALUES ($1, $2)",
+        "INSERT INTO assignees (project_id, name) VALUES ($1, $2)",
         [newProject.id, a]
       );
     }
@@ -190,7 +190,7 @@ app.post("/projects", upload.array("briefFiles", 10), async (req, res) => {
     // Insert files
     for (const file of newFiles) {
       await pool.query(
-        "INSERT INTO files (projectId, name, url, uploadedAt) VALUES ($1, $2, $3, $4)",
+        "INSERT INTO files (project_id, name, url, uploaded_at) VALUES ($1, $2, $3, $4)",
         [newProject.id, file.name, file.url, file.uploadedAt]
       );
     }
@@ -217,9 +217,9 @@ app.post("/projects/reschedule", async (req, res) => {
     // Step 2: Update deadline in projects table
     await pool.query("UPDATE projects SET deadline=$1 WHERE id=$2", [newDate, id]);
 
-    // Step 3: Insert into rescheduleLog
+    // Step 3: Insert into reschedule_log
     await pool.query(
-      `INSERT INTO rescheduleLog (projectId, oldDate, newDate, reason, date) 
+      `INSERT INTO rescheduleLog (project_id, old_date, new_date, reason, date) 
        VALUES ($1, $2, $3, $4, $5)`,
       [id, oldDate, newDate, reason, new Date().toISOString()]
     );
@@ -238,7 +238,7 @@ app.post("/projects/submit", upload.array("workFiles", 10), async (req, res) => 
     // Step 1: Update project status
     await pool.query(
       `UPDATE projects 
-       SET status=$1, designApproved=$2, creativeApproved=$3 
+       SET status=$1, design_approved=$2, creativeApproved=$3 
        WHERE id=$4`,
       ["Under Review", 0, 0, id]
     );
@@ -247,7 +247,7 @@ app.post("/projects/submit", upload.array("workFiles", 10), async (req, res) => 
     if (req.files && req.files.length > 0) {
       for (const f of req.files) {
         await pool.query(
-          `INSERT INTO files (projectId, name, url, uploadedAt) VALUES ($1, $2, $3, $4)`,
+          `INSERT INTO files (project_id, name, url, uploaded_at) VALUES ($1, $2, $3, $4)`,
           [id, f.originalname, `/uploads/${f.filename}`, new Date().toISOString()]
         );
       }
@@ -267,7 +267,7 @@ app.post("/projects/approve-step", async (req, res) => {
   try {
     // Step 1: Fetch current project state
     const rowRes = await pool.query(
-      "SELECT designApproved, creativeApproved FROM projects WHERE id=$1",
+      "SELECT design_approved, creativeApproved FROM projects WHERE id=$1",
       [id]
     );
     if (rowRes.rows.length === 0) {
@@ -291,9 +291,9 @@ app.post("/projects/approve-step", async (req, res) => {
     // Step 4: Update project in DB
     await pool.query(
       `UPDATE projects 
-       SET designApproved=$1, creativeApproved=$2, 
+       SET design_approved=$1, creative_approved=$2, 
            status=COALESCE($3, status), 
-           deliveryDate=COALESCE($4, deliveryDate) 
+           delivery_date=COALESCE($4, deliveryDate) 
        WHERE id=$5`,
       [designapproved, creativeapproved, status, deliveryDate, id]
     );
@@ -313,7 +313,7 @@ app.post("/projects/reject", async (req, res) => {
     // Step 1: Reset project status and approvals
     const updateRes = await pool.query(
       `UPDATE projects 
-       SET status=$1, designApproved=$2, creativeApproved=$3 
+       SET status=$1, design_approved=$2, creative_approved=$3 
        WHERE id=$4`,
       ["Active", 0, 0, id]
     );
@@ -324,7 +324,7 @@ app.post("/projects/reject", async (req, res) => {
 
     // Step 2: Insert rejection log entry
     await pool.query(
-      `INSERT INTO rejectionLog (projectId, date, reason) VALUES ($1, $2, $3)`,
+      `INSERT INTO rejection_log (project_id, date, reason) VALUES ($1, $2, $3)`,
       [id, new Date().toISOString(), reason]
     );
 
@@ -340,7 +340,7 @@ app.post("/projects/archive", async (req, res) => {
 
   try {
     const result = await pool.query(
-      "UPDATE projects SET isArchived=$1 WHERE id=$2",
+      "UPDATE projects SET is_archived=$1 WHERE id=$2",
       [1, id]
     );
 
@@ -370,15 +370,15 @@ app.post("/projects/feedback-restore", async (req, res) => {
     // Step 2: Update project fields
     await pool.query(
       `UPDATE projects 
-       SET isArchived=$1, status=$2, version=$3, 
-           designApproved=$4, creativeApproved=$5, deliveryDate=$6 
+       SET is_archived=$1, status=$2, version=$3, 
+           design_approved=$4, creative_approved=$5, delivery_date=$6 
        WHERE id=$7`,
       [0, "Active", newVersion, 0, 0, null, id]
     );
 
     // Step 3: Insert feedback log entry
     await pool.query(
-      `INSERT INTO feedbackLog (projectId, version, date, content) VALUES ($1, $2, $3, $4)`,
+      `INSERT INTO feedback_log (project_id, version, date, content) VALUES ($1, $2, $3, $4)`,
       [id, newVersion, new Date().toISOString(), feedback]
     );
 
@@ -395,11 +395,11 @@ app.post("/projects/delete", async (req, res) => {
 
   try {
     // Step 1: Delete related records first
-    await pool.query("DELETE FROM assignees WHERE projectId=$1", [id]);
-    await pool.query("DELETE FROM files WHERE projectId=$1", [id]);
-    await pool.query("DELETE FROM rejectionLog WHERE projectId=$1", [id]);
-    await pool.query("DELETE FROM feedbackLog WHERE projectId=$1", [id]);
-    await pool.query("DELETE FROM rescheduleLog WHERE projectId=$1", [id]);
+    await pool.query("DELETE FROM assignees WHERE project_id=$1", [id]);
+    await pool.query("DELETE FROM files WHERE project_id=$1", [id]);
+    await pool.query("DELETE FROM rejection_log WHERE project_id=$1", [id]);
+    await pool.query("DELETE FROM feedback_log WHERE project_id=$1", [id]);
+    await pool.query("DELETE FROM reschedule_log WHERE project_id=$1", [id]);
 
     // Step 2: Delete project itself
     const result = await pool.query("DELETE FROM projects WHERE id=$1", [id]);
