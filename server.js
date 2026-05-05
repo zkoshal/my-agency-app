@@ -96,7 +96,7 @@ app.get("/team/:brand", async (req, res) => {
 // Get all projects with related data
 app.get("/projects", async (req, res) => {
   try {
-    const projectsRes = await pool.query("SELECT id, created_at createdAt, brand, name, cs_lead csLead, brief, deadline, status, version, is_archived isArchived, design_approved designApproved, creative_approved creativeApproved, delivery_date deliveryDate, file_url fileUrl FROM projects ORDER BY created_at DESC");
+    const projectsRes = await pool.query("SELECT id, created_at "createdAt", brand, name, cs_lead "csLead", brief, deadline, status, version, is_archived "isArchived", design_approved "designApproved", creative_approved "creativeApproved", delivery_date "deliveryDate", file_url "fileUrl" FROM projects ORDER BY created_at DESC");
     const projects = projectsRes.rows;
 
     const fullProjects = await Promise.all(
@@ -112,10 +112,10 @@ app.get("/projects", async (req, res) => {
         const feedbackRes = await pool.query("SELECT version, date, content FROM feedback_log WHERE project_id=$1", [p.id]);
         project.feedbackLog = feedbackRes.rows;
 
-        const rescheduleRes = await pool.query("SELECT old_date oldDate, new_date newDate, reason, date FROM reschedule_log WHERE project_id=$1", [p.id]);
+        const rescheduleRes = await pool.query("SELECT old_date "oldDate", new_date "newDate", reason, date FROM reschedule_log WHERE project_id=$1", [p.id]);
         project.rescheduleLog = rescheduleRes.rows;
 
-        const filesRes = await pool.query("SELECT name, url, uploaded_at uploadedAt FROM files WHERE project_id=$1", [p.id]);
+        const filesRes = await pool.query("SELECT name, url, uploaded_at "uploadedAt" FROM files WHERE project_id=$1", [p.id]);
         project.files = filesRes.rows;
 
         return project;
