@@ -295,7 +295,7 @@ app.post("/projects/approve-step", async (req, res) => {
            status=COALESCE($3, status), 
            delivery_date=COALESCE($4, delivery_date) 
        WHERE id=$5`,
-      [designapproved, creativeapproved, status, delivery_date, id]
+      [design_approved, creative_approved, status, delivery_date, id]
     );
 
     res.json({ success: true });
