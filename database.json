@@ -1,178 +1,232 @@
 [
   {
-    "id": 1777534996449,
+    "id": 1777559237879,
+    "createdAt": "2026-04-30",
+    "brand": "Nescafe",
+    "name": "Eid Post",
+    "csLead": "Mobeen",
+    "brief": "Eid post designs",
+    "assignees": [],
+    "deadline": "2026-05-02",
+    "status": "Ready to Share",
+    "version": 2,
+    "isArchived": true,
+    "designApproved": true,
+    "creativeApproved": true,
+    "rejectionLog": [
+      {
+        "date": "4/30/2026, 3:28:28 PM",
+        "reason": "Post looks bad please discuss"
+      }
+    ],
+    "feedbackLog": [
+      {
+        "version": 2,
+        "date": "4/30/2026, 3:30:13 PM",
+        "content": "Client says increase logo size"
+      }
+    ],
+    "rescheduleLog": [
+      {
+        "oldDate": "2026-05-01",
+        "newDate": "2026-05-02",
+        "reason": "because of rejection",
+        "date": "4/30/2026, 3:29:08 PM"
+      }
+    ],
+    "fileUrl": "/uploads/1777641436139-Ammarahs Team.xlsx",
+    "files": []
+  },
+  {
+    "id": 1777641424641,
+    "createdAt": "2026-05-01",
     "brand": "Bunyad",
-    "name": "Post",
+    "name": "Post for eid",
     "csLead": "Fahad",
+    "brief": "Make post as per the brief emailed",
+    "assignees": [
+      "Rimsha",
+      "Azka"
+    ],
+    "deadline": "2026-05-06",
+    "status": "Ready to Share",
+    "version": 1,
+    "isArchived": true,
+    "designApproved": true,
+    "creativeApproved": true,
+    "rejectionLog": [
+      {
+        "date": "01/05/26",
+        "reason": "Not looking nice"
+      },
+      {
+        "date": "03/05/2026",
+        "reason": "need to redesign"
+      }
+    ],
+    "feedbackLog": [],
+    "rescheduleLog": [
+      {
+        "oldDate": "2026-05-04",
+        "newDate": "2026-05-06",
+        "reason": "Priority task",
+        "date": "03/05/2026"
+      }
+    ],
+    "fileUrl": "/uploads/1777641498169-Ammarahs Team.xlsx",
+    "files": [
+      {
+        "name": "Ammarahs Team.xlsx",
+        "url": "/uploads/1777813193522-Ammarahs Team.xlsx"
+      },
+      {
+        "name": "Ammarahs Team.xlsx",
+        "url": "/uploads/1777813877180-Ammarahs Team.xlsx"
+      }
+    ],
+    "deliveryDate": "2026-05-03"
+  },
+  {
+    "id": 1777814712302,
+    "createdAt": "03/05/2026",
+    "brand": "Cream",
+    "name": "Brand Post",
+    "csLead": "Fahad",
+    "brief": "Hello blah blah",
+    "assignees": [
+      "Rimsha",
+      "Azka",
+      "Ijaz"
+    ],
+    "deadline": "2026-05-06",
+    "status": "Ready to Share",
+    "version": 1,
+    "isArchived": false,
+    "designApproved": true,
+    "creativeApproved": true,
+    "deliveryDate": "2026-05-04",
+    "rejectionLog": [
+      {
+        "date": "03/05/2026",
+        "reason": "Redesign"
+      }
+    ],
+    "feedbackLog": [],
+    "rescheduleLog": [],
+    "files": [
+      {
+        "name": "Ammarahs Team.xlsx",
+        "url": "/uploads/1777814746132-Ammarahs Team.xlsx"
+      }
+    ]
+  },
+  {
+    "id": 1777815689674,
+    "createdAt": "03/05/2026",
+    "brand": "NPL",
+    "name": "Brand post",
+    "csLead": "Mobeen",
+    "brief": "Design Post",
+    "assignees": [
+      "Shehryar",
+      "Noor",
+      "Azka",
+      "Aleem"
+    ],
+    "deadline": "2026-05-06",
+    "status": "Ready to Share",
+    "version": 1,
+    "isArchived": false,
+    "designApproved": true,
+    "creativeApproved": true,
+    "deliveryDate": "2026-05-03",
+    "rejectionLog": [],
+    "feedbackLog": [],
+    "rescheduleLog": [],
+    "files": []
+  },
+  {
+    "id": 1777816292778,
+    "createdAt": "03/05/2026",
+    "brand": "Electrolux",
+    "name": "Brand POst",
+    "csLead": "ABC",
     "brief": "ABC",
     "assignees": [
-      "Rimsha",
-      "Azka"
+      "Shehryar",
+      "Azka",
+      "Ijaz"
     ],
-    "startDate": "2026-04-30",
-    "deadline": "2026-05-01",
-    "status": "Ready to Share with Client",
-    "fileUrl": "/uploads/1777535003952-Ammarahs Team.xlsx",
-    "designApproved": true,
-    "creativeApproved": true,
-    "isArchived": true
-  },
-  {
-    "id": 1777536052900,
-    "brand": "Bunyad",
-    "name": "ABC",
-    "csLead": "Fahad",
-    "brief": "CDE",
-    "assignees": [
-      "Rimsha",
-      "Azka"
-    ],
-    "startDate": "2026-04-30",
-    "deadline": "2026-04-30",
-    "status": "Ready to Share with Client",
-    "fileUrl": "/uploads/1777536073658-Ammarahs Team.xlsx",
-    "designApproved": true,
-    "creativeApproved": true,
-    "isArchived": true,
-    "completionDate": "2026-04-30"
-  },
-  {
-    "id": 1777536440621,
-    "brand": "Bunyad",
-    "name": "gf",
-    "csLead": "fahad",
-    "brief": "gggg",
-    "assignees": [
-      "Rimsha",
-      "Azka"
-    ],
-    "startDate": "2026-04-30",
-    "deadline": "2026-05-01",
-    "status": "Ready to Share with Client",
-    "fileUrl": "/uploads/1777536462337-Ammarahs Team.xlsx",
-    "designApproved": true,
-    "creativeApproved": true,
-    "isArchived": true,
-    "completionDate": "2026-04-30"
-  },
-  {
-    "id": 1777536949963,
-    "brand": "Bunyad",
-    "name": "A",
-    "csLead": "F",
-    "brief": "D",
-    "assignees": [
-      "Rimsha",
-      "Ahmed"
-    ],
-    "startDate": "2026-04-30",
-    "deadline": "2026-05-02",
-    "status": "Ready to Share with Client",
-    "fileUrl": "/uploads/1777538775927-Ammarahs Team.xlsx",
-    "designApproved": true,
-    "creativeApproved": true,
-    "isArchived": true,
-    "completionDate": "2026-04-30",
-    "rescheduleLog": [
+    "deadline": "2026-05-06",
+    "status": "Active",
+    "version": 1,
+    "isArchived": false,
+    "designApproved": false,
+    "creativeApproved": false,
+    "deliveryDate": null,
+    "rejectionLog": [
       {
-        "oldDeadline": "2026-05-01",
-        "newDeadline": "2026-05-02",
-        "reason": "New Urgent Job Came in\n",
-        "dateChanged": "2026-04-30"
+        "date": "03/05/2026",
+        "reason": "Redesign"
+      }
+    ],
+    "feedbackLog": [],
+    "rescheduleLog": [],
+    "files": [
+      {
+        "name": "Ammarahs Team.xlsx",
+        "url": "/uploads/1777816302874-Ammarahs Team.xlsx"
       }
     ]
   },
   {
-    "id": 1777539109741,
-    "brand": "Bunyad",
-    "name": "B",
-    "csLead": "F",
-    "brief": "V",
-    "assignees": [
-      "Rimsha",
-      "Azka"
-    ],
-    "startDate": "2026-04-30",
-    "deadline": "2026-04-30",
-    "status": "Ready to Share with Client",
-    "fileUrl": "/uploads/1777539128272-Ammarahs Team.xlsx",
-    "designApproved": true,
-    "creativeApproved": true,
-    "isArchived": true,
-    "completionDate": "2026-04-30",
-    "rescheduleLog": []
-  },
-  {
-    "id": 1777539402857,
-    "brand": "Bunyad",
-    "name": "b",
-    "csLead": "a",
-    "brief": "v",
-    "assignees": [
-      "Rimsha",
-      "Azka"
-    ],
-    "startDate": "2026-04-30",
-    "deadline": "2026-05-01",
-    "status": "Ready to Share with Client",
-    "fileUrl": "/uploads/1777539845205-Ammarahs Team.xlsx",
-    "designApproved": true,
-    "creativeApproved": true,
-    "isArchived": true,
-    "completionDate": "2026-04-30",
-    "rescheduleLog": []
-  },
-  {
-    "id": 1777540944776,
-    "brand": "Bunyad",
-    "name": "Post",
+    "id": 1777818037446,
+    "createdAt": "03/05/2026",
+    "brand": "Nido",
+    "name": "Packaging Design",
     "csLead": "Fahad",
-    "brief": "BLAh blah",
+    "brief": "Make packaging",
     "assignees": [
-      "Rimsha",
-      "Azka"
+      "Asim",
+      "Azka",
+      "Aleem"
     ],
-    "startDate": "2026-04-30",
-    "deadline": "2026-05-02",
-    "status": "Ready to Share with Client",
-    "fileUrl": "/uploads/1777541096130-Ammarahs Team.xlsx",
-    "designApproved": true,
-    "creativeApproved": true,
-    "isArchived": true,
-    "completionDate": "2026-04-30",
-    "rescheduleLog": [
+    "deadline": "2026-05-07",
+    "status": "Active",
+    "version": 2,
+    "isArchived": false,
+    "designApproved": false,
+    "creativeApproved": false,
+    "deliveryDate": null,
+    "rejectionLog": [
       {
-        "oldDeadline": "2026-05-01",
-        "newDeadline": "2026-05-02",
-        "reason": "New Urgent Task",
-        "dateChanged": "2026-04-30"
+        "date": "03/05/2026",
+        "reason": "Logo is wrong"
       }
-    ]
-  },
-  {
-    "id": 1777542394394,
-    "brand": "Bunyad",
-    "name": "Post",
-    "csLead": "Fahad",
-    "brief": "Brief",
-    "assignees": [
-      "Rimsha",
-      "Ahmed"
     ],
-    "startDate": "2026-04-30",
-    "deadline": "2026-05-02",
-    "status": "Ready to Share with Client",
-    "fileUrl": "/uploads/1777542432505-Ammarahs Team.xlsx",
-    "designApproved": true,
-    "creativeApproved": true,
-    "isArchived": true,
-    "completionDate": "2026-04-30",
+    "feedbackLog": [
+      {
+        "version": 2,
+        "date": "03/05/2026",
+        "content": "Make new designs"
+      }
+    ],
     "rescheduleLog": [
       {
-        "oldDeadline": "2026-05-01",
-        "newDeadline": "2026-05-02",
-        "reason": "Urgent job",
-        "dateChanged": "2026-04-30"
+        "oldDate": "2026-05-06",
+        "newDate": "2026-05-07",
+        "reason": "other priority jobs",
+        "date": "03/05/2026"
+      }
+    ],
+    "files": [
+      {
+        "name": "Ammarahs Team.xlsx",
+        "url": "/uploads/1777818103281-Ammarahs Team.xlsx"
+      },
+      {
+        "name": "Ammarahs Team.xlsx",
+        "url": "/uploads/1777818209710-Ammarahs Team.xlsx"
       }
     ]
   }

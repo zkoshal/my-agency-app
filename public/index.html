@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RED PUBLICIS | Workflow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+        .card-standard { background: white; border-radius: 2.5rem; border: 2px solid #e2e8f0; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .glow-active { border-color: #f97316 !important; box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.15); }
+        .glow-review { border-color: #2563eb !important; box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.15); }
+        .glow-ready { border-color: #10b981 !important; box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.3); }
+        .glow-archive { border-color: #0f172a !important; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1); }
+        .brand-btn { border: 1px solid #e2e8f0; cursor: pointer; }
+        .brand-btn.active { background: #16a34a !important; color: white !important; border-color: #16a34a !important; }
+        .tab-active { background-color: #0f172a !important; color: white !important; }
+        .status-badge { font-size: 11px !important; font-weight: 900 !important; letter-spacing: 0.05em; }
+        .assignee-pill { font-size: 10px; font-weight: 700; background: #f8fafc; color: #64748b; padding: 4px 12px; border-radius: 99px; border: 1px solid #e2e8f0; }
+        .btn-approve { border: 2px solid #e2e8f0; color: #94a3b8; transition: all 0.2s ease; }
+        .btn-approve.active { background: #10b981; color: white; border-color: #10b981; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div id="loginScreen" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl text-center">
+            <h1 class="text-4xl font-black uppercase tracking-tighter mb-8">RED <span class="text-green-600">PUBLICIS</span></h1>
+            <div class="space-y-4">
+                <input type="text" id="username" placeholder="Username" class="w-full bg-slate-50 p-4 rounded-xl font-bold border outline-none">
+                <input type="password" id="password" placeholder="Password" class="w-full bg-slate-50 p-4 rounded-xl font-bold border outline-none">
+                <button onclick="handleLogin()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-green-600 transition-colors">Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden max-w-6xl mx-auto">
+        <div id="briefModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-4xl rounded-[2.5rem] p-10 overflow-y-auto max-h-[90vh]">
+                <h2 id="modalTitle" class="text-5xl font-black uppercase mb-6 leading-tight"></h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-xs font-black uppercase text-slate-400 mb-2">Project Brief</h4>
+                        <div id="modalContent" class="p-6 bg-slate-50 rounded-2xl border text-base text-slate-700 whitespace-pre-wrap mb-6"></div>
+                        <h4 class="text-xs font-black uppercase text-green-600 mb-2">Latest Deliverable</h4>
+                        <div id="latestFileArea" class="mb-6"></div>
+                        <h4 class="text-xs font-black uppercase text-slate-400 mb-2">Asset History (Previous)</h4>
+                        <div id="fileArea" class="space-y-2 mb-6"></div>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-black uppercase text-red-500 mb-2">Internal Rejections</h4>
+                        <div id="rejectionHistory" class="space-y-2 mb-6"></div>
+                        <h4 class="text-xs font-black uppercase text-blue-500 mb-2">Client Feedback Log</h4>
+                        <div id="feedbackHistory" class="space-y-2"></div>
+                    </div>
+                </div>
+                <button onclick="closeBrief()" class="w-full mt-10 bg-slate-900 text-white py-4 rounded-xl font-bold uppercase">Close Brief</button>
+            </div>
+        </div>
+
+        <header class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
+            <h1 class="text-3xl font-black uppercase tracking-tighter text-slate-900">RED <span class="text-green-600">PUBLICIS</span></h1>
+            <div class="bg-white p-1.5 rounded-xl shadow-sm border flex gap-1 font-black text-[10px] uppercase overflow-x-auto">
+                <button onclick="toggleView('active')" id="vActive" class="px-5 py-2.5 rounded-lg tab-active transition-all">Pipeline</button>
+                <button onclick="toggleView('review')" id="vReview" class="px-5 py-2.5 rounded-lg text-slate-400 transition-all">In Review</button>
+                <button onclick="toggleView('ready')" id="vReady" class="px-5 py-2.5 rounded-lg text-slate-400 transition-all">Ready to Share</button>
+                <button onclick="toggleView('archive')" id="vArchive" class="px-5 py-2.5 rounded-lg text-slate-400 transition-all">Archive</button>
+            </div>
+            <button onclick="logout()" class="text-[10px] font-black text-slate-400 uppercase hover:text-red-600">Logout</button>
+        </header>
+
+        <div id="archiveSearch" class="hidden mb-6">
+            <input type="text" id="searchInput" oninput="refreshList()" placeholder="Search archived jobs by name or brand..." class="w-full bg-white p-6 rounded-[2rem] border shadow-sm font-bold text-lg outline-none focus:border-slate-900 transition-all">
+        </div>
+
+        <div id="inputForm" class="bg-white p-8 rounded-[2.5rem] border mb-10 shadow-sm">
+            <!-- Brand buttons go here -->
+            <div id="brandGrid" class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6"></div>
+            
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                <input id="csLeadInput" placeholder="CS Lead" class="bg-slate-50 p-4 rounded-xl font-bold border outline-none text-lg">
+                <input id="projectInput" placeholder="Project Name" class="bg-slate-50 p-4 rounded-xl font-bold border outline-none text-lg">
+                <textarea id="briefInput" placeholder="Enter brief details..." class="md:col-span-2 bg-slate-50 p-4 rounded-xl border h-32 outline-none text-base"></textarea>
+                <input id="deadline" type="date" class="bg-slate-50 p-4 rounded-xl font-bold border">
+                <input id="briefFilesInput" type="file" multiple class="bg-slate-50 p-3.5 rounded-xl border text-xs">
+            </div>
+
+            <!-- Team Checkboxes Container -->
+            <div id="teamContainer" class="p-6 bg-slate-50 rounded-xl mb-6 border">
+                <p class="text-xs text-slate-400 italic">Select a brand to see the team...</p>
+            </div>
+
+            <button onclick="saveProject()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-green-600 transition-colors">Launch Project</button>
+        </div>
+
+        <div id="displayArea" class="space-y-6 pb-20"></div>
+    </div>
+
+    <script>
+        let currentBrand = '', currentView = 'active', allProjects = [];
+
+        function formatDate(str) {
+            if(!str) return 'N/A';
+            if(str.includes('/')) return str;
+            const [y, m, d] = str.split('-');
+            return `${d}/${m}/${y}`;
+        }
+
+        async function handleLogin() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            //const res = await fetch('/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({username:user, password:pass}) });
+            //if(res.ok) { localStorage.setItem('rp_auth', 'true'); showApp(); }
+	    if(document.getElementById('username').value === 'admin' && document.getElementById('password').value === 'red123') {
+	    	localStorage.setItem('rp_auth', 'true'); 
+	        showApp();
+            }
+        }
+
+        function showApp() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            initApp();
+        }
+
+        function logout() { localStorage.removeItem('rp_auth'); location.reload(); }
+
+        async function initApp() {
+            const res = await fetch('/brands');
+            const brands = await res.json();
+            // Generate Brand Buttons
+            document.getElementById('brandGrid').innerHTML = brands.map(b => 
+                `<button onclick="selectBrand('${b}')" class="brand-btn bg-slate-50 border p-3 rounded-xl text-[11px] font-black uppercase transition-colors" data-brand="${b}">${b}</button>`
+            ).join('');
+            
+            // Default select the first one
+            if(brands.length > 0) selectBrand(brands[0]);
+            refreshList();
+        }
+
+        async function selectBrand(brand) {
+            currentBrand = brand;
+            
+            // UI Update: Highlight active button
+            document.querySelectorAll('.brand-btn').forEach(btn => {
+                if(btn.getAttribute('data-brand') === brand) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            // Logic Update: Fetch Team for this brand
+            const res = await fetch(`/team/${brand}`);
+            const data = await res.json();
+            
+            let html = '';
+            for(let dept in data) {
+                html += `
+                <div class="mb-4">
+                    <p class="text-[11px] font-black text-slate-500 uppercase mb-2 tracking-wider">${dept}</p>
+                    <div class="flex flex-wrap gap-2">
+                `;
+                data[dept].forEach(m => {
+                    html += `
+                    <label class="bg-white border-2 px-4 py-2 rounded-full text-xs font-bold cursor-pointer hover:border-green-500 transition-colors flex items-center">
+                        <input type="checkbox" name="teamMember" value="${m}" class="mr-2">
+                        ${m}
+                    </label>`;
+                });
+                html += `</div></div>`;
+            }
+            document.getElementById('teamContainer').innerHTML = html;
+        }
+
+        async function saveProject() {
+            const fd = new FormData();
+            fd.append('brand', currentBrand);
+            fd.append('csLead', document.getElementById('csLeadInput').value);
+            fd.append('projectName', document.getElementById('projectInput').value);
+            fd.append('brief', document.getElementById('briefInput').value);
+            fd.append('deadline', document.getElementById('deadline').value);
+            const team = [...document.querySelectorAll('input[name="teamMember"]:checked')].map(i => i.value);
+            fd.append('assignees', JSON.stringify(team));
+            const files = document.getElementById('briefFilesInput').files;
+            for(let i=0; i<files.length; i++) { fd.append('briefFiles', files[i]); }
+            const res = await fetch('/projects', { method: 'POST', body: fd });
+            if(res.ok) {
+                document.getElementById('projectInput').value = '';
+                document.getElementById('briefInput').value = '';
+                refreshList();
+            }
+        }
+
+        function toggleView(v) {
+            currentView = v;
+            ['vActive', 'vReview', 'vReady', 'vArchive'].forEach(id => {
+                const btn = document.getElementById(id);
+                if(btn) btn.className = "px-5 py-2.5 rounded-lg text-slate-400 font-black uppercase transition-all";
+            });
+            document.getElementById('v' + v.charAt(0).toUpperCase() + v.slice(1)).className = "px-5 py-2.5 rounded-lg tab-active font-black uppercase transition-all";
+            document.getElementById('inputForm').classList.toggle('hidden', v !== 'active');
+            document.getElementById('archiveSearch').classList.toggle('hidden', v !== 'archive');
+            if(v === 'archive') document.getElementById('searchInput').value = '';
+            refreshList();
+        }
+
+        async function refreshList() {
+            const res = await fetch('/projects');
+            allProjects = await res.json();
+            const today = new Date().toISOString().split('T')[0];
+            const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase();
+
+            const filtered = allProjects.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchTerm) || p.brand.toLowerCase().includes(searchTerm);
+                if (currentView === 'archive') return p.isArchived && matchesSearch;
+                if (p.isArchived) return false;
+                if (currentView === 'active') return p.status === 'Active';
+                if (currentView === 'review') return p.status === 'Under Review';
+                if (currentView === 'ready') return p.status === 'Ready to Share';
+                return true;
+            });
+
+            document.getElementById('displayArea').innerHTML = filtered.reverse().map(p => {
+                let statusColor = "bg-orange-500 text-white";
+                let glowClass = "glow-active";
+                let statusText = p.status;
+                if (p.status === 'Under Review') { statusColor = "bg-blue-600 text-white"; glowClass = "glow-review"; }
+                if (p.status === 'Ready to Share') { statusColor = "bg-green-600 text-white"; glowClass = "glow-ready"; }
+                if (p.isArchived) { statusColor = "bg-slate-900 text-white"; glowClass = "glow-archive"; statusText = "Shared with Client"; }
+
+                let timingBadge = "";
+                const finalCheckDate = p.deliveryDate || today;
+                if (p.status === "Ready to Share" || p.isArchived) {
+                    timingBadge = finalCheckDate > p.deadline 
+                        ? `<span class="px-4 py-1.5 bg-red-600 text-white rounded-full status-badge uppercase">Delayed</span>`
+                        : `<span class="px-4 py-1.5 bg-emerald-500 text-white rounded-full status-badge uppercase">On Time</span>`;
+                }
+
+                const resCount = p.rescheduleLog ? p.rescheduleLog.length : 0;
+                const rejCount = p.rejectionLog ? p.rejectionLog.length : 0;
+                const resBadge = `<span class="px-4 py-1.5 ${resCount > 0 ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-400'} rounded-full status-badge uppercase">${resCount} Reschedules</span>`;
+                const rejBadge = `<span class="px-4 py-1.5 ${rejCount > 0 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-400'} rounded-full status-badge uppercase">${rejCount} Rejections</span>`;
+                const assigneeHtml = (p.assignees || []).map(name => `<span class="assignee-pill">${name}</span>`).join('');
+
+                return `
+                <div class="card-standard p-8 flex flex-col md:flex-row justify-between gap-6 ${glowClass}">
+                    <div class="flex-1">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-4 py-1.5 rounded-full status-badge uppercase ${statusColor}">${statusText}</span>
+                            <span class="px-4 py-1.5 bg-slate-800 text-white rounded-full status-badge uppercase">V${p.version}</span>
+                            ${timingBadge}
+                            ${resBadge}
+                            ${rejBadge}
+                        </div>
+                        <h3 class="text-4xl font-black uppercase cursor-pointer hover:text-green-600 transition-colors" onclick="openBrief(${p.id})">${p.name}</h3>
+                        <p class="text-base font-black text-green-600 uppercase mt-2">${p.brand} <span class="text-slate-300 mx-2">|</span> Lead: ${p.csLead}</p>
+                        <div class="mt-4 flex gap-6 text-xs font-bold text-slate-400">
+                            <span>Target: ${formatDate(p.deadline)}</span>
+                            <span class="border-l pl-6">Created: ${p.createdAt}</span>
+                        </div>
+                    </div>
+                    <div class="md:w-72 flex flex-col justify-between items-end">
+                        <div class="flex flex-wrap justify-end gap-1 mb-4">
+                            ${assigneeHtml}
+                        </div>
+                        <div class="w-full">
+                             ${getActions(p)}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function getActions(p) {
+            if (p.isArchived) return `
+                <button onclick="addFeedback(${p.id})" class="w-full bg-blue-600 text-white py-4 rounded-xl text-xs font-black uppercase hover:bg-blue-700 transition-all">Feedback</button>
+                <button onclick="adminDelete(${p.id})" class="w-full mt-3 text-red-400 font-black text-[9px] uppercase hover:text-red-600 text-right">Admin Delete</button>`;
+            
+            if (p.status === 'Ready to Share') return `
+                <button onclick="archive(${p.id})" class="w-full bg-green-600 text-white py-4 rounded-2xl text-xs font-black uppercase hover:bg-green-700 transition-all">Shared with Client</button>
+                <button onclick="internalReject(${p.id})" class="w-full mt-3 text-red-500 font-black text-[10px] uppercase hover:underline text-center">Rejection</button>`;
+
+            if (p.status === 'Under Review') return `
+                <div class="flex gap-2 mb-3">
+                    <button onclick="approve(${p.id},'design')" class="btn-approve flex-1 py-4 rounded-2xl text-[10px] font-black uppercase ${p.designApproved?'active':''}">Design OK</button>
+                    <button onclick="approve(${p.id},'creative')" class="btn-approve flex-1 py-4 rounded-2xl text-[10px] font-black uppercase ${p.creativeApproved?'active':''}">Creative OK</button>
+                </div>
+                <button onclick="internalReject(${p.id})" class="w-full text-red-500 font-black text-[10px] uppercase hover:underline text-center">Rejection</button>`;
+
+            return `
+                <div class="bg-slate-50 p-4 rounded-2xl border-2 border-dashed border-slate-200">
+                    <input type="file" multiple id="f-${p.id}" class="text-[10px] mb-3 block w-full">
+                    <div class="flex gap-2">
+                        <button onclick="submit(${p.id})" class="flex-[2] bg-slate-900 text-white py-3 rounded-xl text-[10px] font-black uppercase hover:bg-green-600 transition-colors">Submit Assets</button>
+                        <button onclick="reschedule(${p.id})" class="flex-1 bg-orange-100 text-orange-700 py-3 rounded-xl text-[10px] font-black uppercase hover:bg-orange-200 text-center">Reschedule</button>
+                    </div>
+                </div>`;
+        }
+
+        async function submit(id) {
+            const fileInput = document.getElementById(`f-${id}`);
+            if (!fileInput.files || fileInput.files.length === 0) { alert("⚠️ ACTION BLOCKED: You must upload at least one asset file to move this task to Review."); return; }
+            const fd = new FormData(); fd.append('id', id);
+            const files = fileInput.files;
+            for(let i=0; i<files.length; i++) fd.append('workFiles', files[i]);
+            const res = await fetch('/projects/submit', { method: 'POST', body: fd }); 
+            if(res.ok) refreshList();
+        }
+
+        async function reschedule(id) {
+            const d = prompt("New Deadline (YYYY-MM-DD):");
+            const r = prompt("Reason:");
+            if(d && r) {
+                await fetch('/projects/reschedule', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, newDate: d, reason: r}) });
+                refreshList();
+            }
+        }
+
+        async function approve(id, type) { await fetch('/projects/approve-step', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, type}) }); refreshList(); }
+        async function internalReject(id) {
+            const r = prompt("Rejection Reason:");
+            if(r) { await fetch('/projects/reject', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, reason: r}) }); refreshList(); }
+        }
+
+        async function archive(id) { await fetch('/projects/archive', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id}) }); refreshList(); }
+        async function addFeedback(id) {
+            const f = prompt("Client Revision Feedback:");
+            if(f) { await fetch('/projects/feedback-restore', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id, feedback: f}) }); toggleView('active'); }
+        }
+
+        async function adminDelete(id) { if(prompt("Admin Pass:") === 'red123') { await fetch('/projects/delete', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id}) }); refreshList(); } }
+
+        function openBrief(id) {
+            const p = allProjects.find(x => x.id === id);
+            document.getElementById('modalTitle').innerText = p.name;
+            document.getElementById('modalContent').innerText = p.brief;
+            if(p.files && p.files.length > 0) {
+                const latest = p.files[p.files.length - 1];
+                const history = p.files.slice(0, -1).reverse();
+                document.getElementById('latestFileArea').innerHTML = `
+                    <a href="${latest.url}" target="_blank" class="block p-4 bg-green-50 border-2 border-green-200 rounded-2xl text-green-700 font-black text-sm truncate shadow-sm">✨ FINAL ASSET: ${latest.name}</a>`;
+                document.getElementById('fileArea').innerHTML = history.map(f => `<a href="${f.url}" target="_blank" class="block p-3 bg-slate-100 rounded-xl text-slate-500 font-bold text-xs truncate mb-1 opacity-70 hover:opacity-100">📄 ${f.name}</a>`).join('') || '<p class="text-[10px] text-slate-400 italic">No previous versions.</p>';
+            } else {
+                document.getElementById('latestFileArea').innerHTML = 'None.';
+                document.getElementById('fileArea').innerHTML = 'None.';
+            }
+            document.getElementById('rejectionHistory').innerHTML = p.rejectionLog.map(l => `<div class="p-3 bg-red-50 text-xs border rounded-xl mb-1"><b>${l.date}</b>: ${l.reason}</div>`).join('') || 'None.';
+            document.getElementById('feedbackHistory').innerHTML = p.feedbackLog.map(l => `<div class="p-3 bg-blue-50 text-xs border rounded-xl mb-1"><b>V${l.version}</b>: ${l.content}</div>`).join('') || 'None.';
+            document.getElementById('briefModal').classList.remove('hidden');
+        }
+
+        function closeBrief() { document.getElementById('briefModal').classList.add('hidden'); }
+        window.onload = () => { if (localStorage.getItem('rp_auth') === 'true') showApp(); };
+    </script>
+</body>
+</html>
