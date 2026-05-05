@@ -1,16 +1,35 @@
-const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database("./app.db");
+const pool = require("./db");
 
-db.serialize(() => {
-  db.run("DROP TABLE IF EXISTS projects");
-  db.run("DROP TABLE IF EXISTS assignees");
-  db.run("DROP TABLE IF EXISTS rejectionLog");
-  db.run("DROP TABLE IF EXISTS feedbackLog");
-  db.run("DROP TABLE IF EXISTS rescheduleLog");
-  db.run("DROP TABLE IF EXISTS files");
-  db.run("DROP TABLE IF EXISTS brands");
-  db.run("DROP TABLE IF EXISTS team_members");
-  db.run("DROP TABLE IF EXISTS brand_teams");
-});
+async function reset() {
+  try {
+    // Delete in dependency order
+    await pool.query("DELETE FROM brand_teams");
+    await pool.query("DELETE FROM team_members");
+    await pool.query("DELETE FROM brands");
 
-console.log("✅ All tables dropped. Run migrate.js again to reload data.");
+    await pool.query("DELETE FROM assignees");
+    await pool.query("DELETE FROM files");
+    await pool.query("DELETE FROM rejectionLog");
+    await pool.query("DELETE FROM feedbackLog");
+    await pool.query("DELETE FROM rescheduleLog");
+    await pool.query("DELETE FROM projects");
+
+    // Reset sequences for SERIAL columns
+    await pool.query("ALTER SEQUENCE assignees_id_seq RESTART WITH 1");
+    await pool.query("ALTER SEQUENCE files_id_seq RESTART WITH 1");
+    await pool.query("ALTER SEQUENCE rejectionlog_id_seq RESTART WITH 1");
+    await pool.query("ALTER SEQUENCE feedbacklog_id_seq RESTART WITH 1");
+    await pool.query("ALTER SEQUENCE reschedulelog_id_seq RESTART WITH 1");
+    await pool.query("ALTER SEQUENCE brands_id_seq RESTART WITH 1");
+    await pool.query("ALTER SEQUENCE team_members_id_seq RESTART WITH 1");
+    await pool.query("ALTER SEQUENCE brand_teams_id_seq RESTART WITH 1");
+
+    console.log("✅ All data deleted and ID sequences reset");
+  } catch (err) {
+    console.error("❌ Error resetting data:", err.message);
+  } finally {
+    pool.end();
+  }
+}
+
+reset();
