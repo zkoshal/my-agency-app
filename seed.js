@@ -33,7 +33,7 @@ async function seedProjects() {
   for (const p of data) {
     await pool.query(
       `INSERT INTO projects 
-       (id, createdAt, brand, name, csLead, brief, deadline, status, version, isArchived, designApproved, creativeApproved, deliveryDate, fileUrl)
+       (id, created_at, brand, name, cs_lead, brief, deadline, status, version, is_archived, design_approved, creative_approved, delivery_date, file_url)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
        ON CONFLICT (id) DO NOTHING`,
       [
@@ -44,33 +44,33 @@ async function seedProjects() {
     );
 
     for (const a of p.assignees || []) {
-      await pool.query(`INSERT INTO assignees (projectId, name) VALUES ($1, $2)`, [p.id, a]);
+      await pool.query(`INSERT INTO assignees (project_id, name) VALUES ($1, $2)`, [p.id, a]);
     }
 
     for (const f of p.files || []) {
       await pool.query(
-        `INSERT INTO files (projectId, name, url, uploadedAt) VALUES ($1, $2, $3, $4)`,
+        `INSERT INTO files (project_id, name, url, uploaded_at) VALUES ($1, $2, $3, $4)`,
         [p.id, f.name, f.url, f.uploadedAt || null]
       );
     }
 
     for (const r of p.rejectionLog || []) {
       await pool.query(
-        `INSERT INTO rejectionLog (projectId, date, reason) VALUES ($1, $2, $3)`,
+        `INSERT INTO rejection_log (project_id, date, reason) VALUES ($1, $2, $3)`,
         [p.id, r.date, r.reason]
       );
     }
 
     for (const fb of p.feedbackLog || []) {
       await pool.query(
-        `INSERT INTO feedbackLog (projectId, version, date, content) VALUES ($1, $2, $3, $4)`,
+        `INSERT INTO feedback_log (project_id, version, date, content) VALUES ($1, $2, $3, $4)`,
         [p.id, fb.version, fb.date, fb.content]
       );
     }
 
     for (const rs of p.rescheduleLog || []) {
       await pool.query(
-        `INSERT INTO rescheduleLog (projectId, oldDate, newDate, reason, date) VALUES ($1, $2, $3, $4, $5)`,
+        `INSERT INTO reschedule_log (project_id, old_date, new_date, reason, date) VALUES ($1, $2, $3, $4, $5)`,
         [p.id, rs.oldDate, rs.newDate, rs.reason, rs.date]
       );
     }
@@ -109,7 +109,7 @@ async function seedBrandsTeams() {
         }
 
         await pool.query(
-          `INSERT INTO brand_teams (brandId, memberId, role) VALUES ($1, $2, $3)`,
+          `INSERT INTO brand_teams (brand_id, member_id, role) VALUES ($1, $2, $3)`,
           [brandId, memberId, role]
         );
       }
