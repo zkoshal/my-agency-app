@@ -276,7 +276,7 @@ app.post("/projects/approve-step", async (req, res) => {
 
     let { designapproved, creativeapproved } = rowRes.rows[0];
     let status = null;
-    let deliveryDate = null;
+    let delivery_date = null;
 
     // Step 2: Update flags based on type
     if (type === "design") designapproved = 1;
@@ -285,7 +285,7 @@ app.post("/projects/approve-step", async (req, res) => {
     // Step 3: If both approved, mark Ready to Share
     if (designapproved && creativeapproved) {
       status = "Ready to Share";
-      deliveryDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+      delivery_date = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
     }
 
     // Step 4: Update project in DB
@@ -293,9 +293,9 @@ app.post("/projects/approve-step", async (req, res) => {
       `UPDATE projects 
        SET design_approved=$1, creative_approved=$2, 
            status=COALESCE($3, status), 
-           delivery_date=COALESCE($4, deliveryDate) 
+           delivery_date=COALESCE($4, delivery_date) 
        WHERE id=$5`,
-      [designapproved, creativeapproved, status, deliveryDate, id]
+      [designapproved, creativeapproved, status, delivery_date, id]
     );
 
     res.json({ success: true });
